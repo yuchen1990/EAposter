@@ -1,18 +1,17 @@
+#
+#[Step 0]effort data
+#
 edata<-read.table('LOC_rawdata.csv',header=TRUE,sep=",")
 summary(edata)
 
 library(ggplot2)
 library(ggjoy)
 
-
 edata$Dataset<-factor(edata$Dataset,levels = c("postgres", "platform", "mozilla", "jdt", "columba", "bugzilla"))
 ggplot(edata, aes(x=log(LOC+1,2), y=Dataset))+ geom_joy(aes(fill=Dataset))+theme(legend.position="none")
 
-
-
 data1<-NULL
 c("bugzilla", "columba", "jdt",  "platform", "postgres", "mozilla")
-
 
 library(fBasics)
 
@@ -46,6 +45,9 @@ hist(data1$LOC,200)
 summary(data1)
 skewness(data1$LOC)
 
+#
+#[step 1] results without trimming
+#
 edata<-read.table('10r10f_rawdata.csv',header=TRUE,sep=",")
 datasets<-methods<-mtdtypes<-NULL
 V_Popt<-V_ACC<-V_AUC<-NULL
@@ -77,7 +79,7 @@ edata$MethodType<-factor(edata$MethodType, levels = c("Sup.R-pE","Sup.non-EA","S
 
 summary(edata)
 library(ggplot2)
-edata<-edata[edata$MethodType!="Random-pE",]
+#edata<-edata[edata$MethodType!="Random-pE",]
 ggplot(edata, aes(AUC,Popt))+
   geom_point(aes(color=MethodType,shape=Dataset),size=1.8)+
   stat_smooth(aes(color=MethodType), method="glm", se=F)+
@@ -87,6 +89,10 @@ ggplot(edata, aes(AUC,ACC))+
   stat_smooth(aes(color=MethodType), method="glm", se=F)+
   labs(title = "AUC vs ACC while including LOC's outliers")
 
+
+#
+#[Step 2] results with trimming
+#
 edata<-read.table('cutTukeyFence_rawdata.csv',header=TRUE,sep=",")
 datasets<-methods<-mtdtypes<-NULL
 V_Popt<-V_ACC<-V_AUC<-NULL
@@ -125,4 +131,19 @@ ggplot(edata, aes(AUC,ACC))+
   stat_smooth(aes(color=MethodType), method="glm", se=F)+
   labs(title = "AUC vs ACC while excluding LOC's outliers")
 
+library(WRS2)
+pbcor(edata$AUC,edata$ACC)
+pbcor(edata$AUC,edata$Popt)
 
+for (mtype in unique(edata$MethodType)){
+  print(mtype)
+  data1<-edata[edata$MethodType==mtype,]
+  print(pbcor(data1$AUC,data1$Popt))
+}
+
+
+plist<-c(0, 0.00093, 0.00281, 2e-05, 0.47243, 0.00111, 0, #acc
+         0, 5e-05, 3e-04, 2e-05, 0.07629, 0, 1e-05) #Popt
+library(mutoss) #BY
+res<-BY(plist,0.05)
+summary(res)
