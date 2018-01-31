@@ -73,9 +73,10 @@ for (data in unique(edata$Dataset)){
   }
 }
 
+
 edata<-data.frame(Dataset=datasets,Method=methods,MethodType=mtdtypes,Popt=V_Popt,ACC=V_ACC,AUC=V_AUC)
 
-edata$MethodType<-factor(edata$MethodType, levels = c("Sup.R-pE","Sup.non-EA","Sup.R-ad","EALR","Sup.R-dd", "Unsup", "Random-pE"))
+edata$MethodType<-factor(edata$MethodType, levels = c("R-ee","R-non-EA","R-ad","EALR","R-dd", "R-unsup"))
 
 summary(edata)
 library(ggplot2)
@@ -120,8 +121,10 @@ for (data in unique(edata$Dataset)){
 
 edata<-data.frame(Dataset=datasets,Method=methods,MethodType=mtdtypes,Popt=V_Popt,ACC=V_ACC,AUC=V_AUC)
 
-edata$MethodType<-factor(edata$MethodType, levels = c("Sup.R-pE","Sup.non-EA","Sup.R-ad","EALR","Sup.R-dd", "Unsup", "Random-pE"))
+edata$MethodType<-factor(edata$MethodType, levels = c("R-ee","R-non-EA","R-ad","EALR","R-dd", "R-unsup"))
 
+summary(edata)
+library(ggplot2)
 ggplot(edata, aes(AUC,Popt))+
   geom_point(aes(color=MethodType,shape=Dataset),size=1.8)+
   stat_smooth(aes(color=MethodType), method="glm", se=F)+
